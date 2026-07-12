@@ -71,6 +71,7 @@ class ProductService:
     ) -> tuple[Sequence[Product], int]:
         """Возвращает страницу активных товаров указанной категории с пагинацией и подсчетом записей."""
 
+        await self._check_category_exists(category_id=category_id)
         items = await self.product_repository.get_all_by_category_id(
             category_id, page, limit
         )

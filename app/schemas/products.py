@@ -40,7 +40,7 @@ class ProductInput(BaseModel):
     ]
 
 
-class Product(BaseModel):
+class ProductRead(BaseModel):
     """
     Модель для ответа с данными товара.
     Используется в GET-запросах.

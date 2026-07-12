@@ -1,45 +1,80 @@
-from fastapi import APIRouter
+from typing import Annotated
+
+from fastapi import APIRouter, Depends, Path, status
+
+from app.core.dependencies import get_product_service
+from app.schemas.pagination import PaginatedResponse, PaginationParameters
+from app.schemas.products import ProductInput, ProductRead
+from app.services import ProductService
 
 router = APIRouter(prefix="/products", tags=["products"])
 
 
-@router.get("/")
-async def get_all_products():
+@router.get("/", response_model=PaginatedResponse[ProductRead])
+async def get_all_products(
+    pagination: Annotated[PaginationParameters, Depends()],
+    product_service: Annotated[ProductService, Depends(get_product_service)],
+) -> PaginatedResponse[ProductRead]:
     """Возвращает список всех товаров."""
 
-    return {"message": "Список всех товаров (заглушка)"}
+    items, count = await product_service.get_all_products(**pagination.model_dump())
+
+    return PaginatedResponse(**pagination.model_dump(), total=count, items=items)  # type: ignore
 
 
-@router.post("/")
-async def create_product():
-    """Создает новый товар."""
-
-    return {"message": "Товар создан (заглушка)"}
-
-
-@router.get("/category/{category_id}")
-async def get_products_by_category(category_id: int):
+@router.get("/category/{category_id}", response_model=PaginatedResponse[ProductRead])
+async def get_products_by_category(
+    category_id: Annotated[int, Path(ge=1, description="ID категории, больше 0")],
+    pagination: Annotated[PaginationParameters, Depends()],
+    product_service: Annotated[ProductService, Depends(get_product_service)],
+) -> PaginatedResponse[ProductRead]:
     """Возвращает список товаров в указанной категории по ее ID."""
 
-    return {"message": f"Товары в категории {category_id} (заглушка)"}
+    items, count = await product_service.get_all_products_by_category_id(
+        category_id=category_id, **pagination.model_dump()
+    )
+
+    return PaginatedResponse(**pagination.model_dump(), total=count, items=items)  # type: ignore
 
 
-@router.get("/{product_id}")
-async def get_product(product_id: int):
+@router.get("/{product_id}", response_model=ProductRead)
+async def get_product(
+    product_id: Annotated[int, Path(ge=1, description="ID продукта, больше 0")],
+    product_service: Annotated[ProductService, Depends(get_product_service)],
+) -> ProductRead:
     """Возвращает детальную информацию о товаре по его ID."""
 
-    return {"message": f"Детали товара {product_id} (заглушка)"}
+    return await product_service.get_product_by_id(product_id=product_id)  # type: ignore
 
 
-@router.put("/{product_id}")
-async def update_product(product_id: int):
+@router.post("/", response_model=ProductRead, status_code=status.HTTP_201_CREATED)
+async def create_product(
+    product: ProductInput,
+    product_service: Annotated[ProductService, Depends(get_product_service)],
+) -> ProductRead:
+    """Создает новый товар."""
+
+    return await product_service.create_product(**product.model_dump())  # type: ignore
+
+
+@router.put("/{product_id}", response_model=ProductRead)
+async def update_product(
+    product_id: Annotated[int, Path(ge=1, description="ID продукта, больше 0")],
+    product: ProductInput,
+    product_service: Annotated[ProductService, Depends(get_product_service)],
+) -> ProductRead:
     """Обновляет товар по его ID."""
 
-    return {"message": f"Товар {product_id} обновлен (заглушка)"}
+    return await product_service.update_product(
+        product_id=product_id, **product.model_dump()
+    )  # type: ignore
 
 
-@router.delete("/{product_id}")
-async def delete_product(product_id: int):
+@router.delete("/{product_id}", response_model=ProductRead)
+async def delete_product(
+    product_id: Annotated[int, Path(ge=1, description="ID продукта, больше 0")],
+    product_service: Annotated[ProductService, Depends(get_product_service)],
+) -> ProductRead:
     """Удаляет товар по его ID."""
 
-    return {"message": f"Товар {product_id} удален (заглушка)"}
+    return await product_service.deactivate_product(product_id=product_id)  # type: ignore

@@ -17,7 +17,7 @@ class ProductRepository(BaseRepository[Product]):
 
         result = await self.session.scalars(
             select(Product)
-            .where(Product.category_id == select, Product.is_active)
+            .where(Product.category_id == category_id, Product.is_active)
             .offset(limit * (page - 1))
             .limit(limit)
         )
@@ -30,7 +30,7 @@ class ProductRepository(BaseRepository[Product]):
             await self.session.scalar(
                 select(func.count())
                 .select_from(Product)
-                .where(Product.category_id == category_id)
+                .where(Product.category_id == category_id, Product.is_active)
             )
             or 0
         )

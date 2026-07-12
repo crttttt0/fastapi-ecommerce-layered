@@ -31,7 +31,10 @@ class BaseRepository(Generic[ModelType]):
         """Получить общее количество записей."""
 
         return (
-            await self.session.scalar(select(func.count()).select_from(self.model)) or 0
+            await self.session.scalar(
+                select(func.count()).select_from(self.model).where(self.model.is_active)
+            )
+            or 0
         )
 
     async def get_by_id(self, obj_id: int) -> ModelType | None:
