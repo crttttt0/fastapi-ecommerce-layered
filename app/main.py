@@ -1,7 +1,13 @@
-from fastapi import FastAPI
+from fastapi import FastAPI, Request, status
+from fastapi.responses import JSONResponse
 
 from app.api.v1.router import api_router
 from app.core.config import settings
+from app.core.exceptions import (
+    BusinessRuleViolationException,
+    EntityNotFoundException,
+    InvalidForeignKeyException,
+)
 
 tags_metadata = [
     {"name": "health", "description": "Проверка работоспособности сервера"}
@@ -20,6 +26,30 @@ def create_app() -> FastAPI:
         version=settings.app.VERSION,
         openapi_tags=tags_metadata,
     )
+
+    @app.exception_handler(InvalidForeignKeyException)
+    async def invalid_foreign_key_handler(
+        request: Request, exc: InvalidForeignKeyException
+    ) -> JSONResponse:
+        return JSONResponse(
+            status_code=status.HTTP_400_BAD_REQUEST, content={"detail": exc.detail}
+        )
+
+    @app.exception_handler(BusinessRuleViolationException)
+    async def business_rule_violation_handler(
+        request: Request, exc: BusinessRuleViolationException
+    ) -> JSONResponse:
+        return JSONResponse(
+            status_code=status.HTTP_400_BAD_REQUEST, content={"detail:": exc.detail}
+        )
+
+    @app.exception_handler(EntityNotFoundException)
+    async def entity_not_found_handler(
+        request: Request, exc: EntityNotFoundException
+    ) -> JSONResponse:
+        return JSONResponse(
+            status_code=status.HTTP_404_NOT_FOUND, content={"detail": exc.detail}
+        )
 
     app.include_router(api_router)
 

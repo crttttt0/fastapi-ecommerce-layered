@@ -1,10 +1,13 @@
 from fastapi import APIRouter
+from sqlalchemy.sql.annotation import Annotated
+
+from app.core.dependencies import get_category_service
 
 router = APIRouter(prefix="/categories", tags=["categories"])
 
 
 @router.get("/")
-async def get_all_categories():
+async def get_all_categories(category_service):
     """Возвращает список всех категорий товаров."""
 
     return {"message": "Список всех категорий (заглушка)"}

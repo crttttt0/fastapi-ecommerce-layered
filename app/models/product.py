@@ -13,6 +13,8 @@ if TYPE_CHECKING:
 
 
 class Product(Base):
+    """Товар"""
+
     __tablename__ = "products"
 
     id: Mapped[int] = mapped_column(primary_key=True)

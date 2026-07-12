@@ -12,6 +12,8 @@ if TYPE_CHECKING:
 
 
 class Category(Base):
+    """Категория товаров"""
+
     __tablename__ = "categories"
 
     id: Mapped[int] = mapped_column(primary_key=True)
