@@ -4,8 +4,12 @@ from fastapi import Depends
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.database import get_session
-from app.repositories import CategoryRepository, ProductRepository
-from app.services import CategoryService, ProductService
+from app.repositories import (
+    CategoryRepository,
+    ProductRepository,
+    UserRepository,
+)
+from app.services import CategoryService, ProductService, UserService
 
 # Репозитории
 
@@ -24,6 +28,14 @@ async def get_product_repository(
     """Возвращает репозиторий для работы с товарами."""
 
     return ProductRepository(session=session)
+
+
+async def get_user_repository(
+    session: Annotated[AsyncSession, Depends(get_session)],
+) -> UserRepository:
+    """Возвращает репозиторий для работы с пользователями."""
+
+    return UserRepository(session=session)
 
 
 # Сервисы
@@ -48,3 +60,11 @@ async def get_product_service(
     return ProductService(
         product_repository=product_repository, category_service=category_service
     )
+
+
+async def get_user_service(
+    user_repository: Annotated[UserRepository, Depends(get_user_repository)],
+) -> UserService:
+    """Возвращает сервис для работы с пользователями."""
+
+    return UserService(user_repository=user_repository)

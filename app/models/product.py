@@ -10,6 +10,7 @@ from app.database import Base
 
 if TYPE_CHECKING:
     from .category import Category
+    from .user import User
 
 
 class Product(Base):
@@ -26,5 +27,7 @@ class Product(Base):
     is_active: Mapped[bool] = mapped_column(default=True)
 
     category_id: Mapped[int] = mapped_column(ForeignKey("categories.id"))
+    seller_id: Mapped[int] = mapped_column(ForeignKey("users.id"))
 
     category: Mapped[Category] = relationship(back_populates="products", lazy="raise")
+    seller: Mapped[User] = relationship(back_populates="products", lazy="raise")

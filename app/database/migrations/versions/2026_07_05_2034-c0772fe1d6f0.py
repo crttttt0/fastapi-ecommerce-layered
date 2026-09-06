@@ -1,4 +1,4 @@
-"""Созданы модели Categories и Products
+"""Созданы модели Category и Product
 
 Revision ID: c0772fe1d6f0
 Revises:

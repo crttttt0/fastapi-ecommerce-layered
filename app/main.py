@@ -5,6 +5,7 @@ from app.api.v1.router import api_router
 from app.core.config import settings
 from app.core.exceptions import (
     BusinessRuleViolationException,
+    EntityAlreadyExistsException,
     EntityNotFoundException,
     InvalidForeignKeyException,
 )
@@ -16,8 +17,8 @@ tags_metadata = [
 
 def create_app() -> FastAPI:
     """
-    Содает экззепляр приложения с настройками из app/core/config.py
-    и эндпойнтомм проверки состояния сервера.
+    Создает экземпляр приложения с настройками из app/core/config.py
+    и эндпоинтом проверки состояния сервера.
     """
 
     app = FastAPI(
@@ -40,7 +41,7 @@ def create_app() -> FastAPI:
         request: Request, exc: BusinessRuleViolationException
     ) -> JSONResponse:
         return JSONResponse(
-            status_code=status.HTTP_400_BAD_REQUEST, content={"detail:": exc.detail}
+            status_code=status.HTTP_400_BAD_REQUEST, content={"detail": exc.detail}
         )
 
     @app.exception_handler(EntityNotFoundException)
@@ -49,6 +50,14 @@ def create_app() -> FastAPI:
     ) -> JSONResponse:
         return JSONResponse(
             status_code=status.HTTP_404_NOT_FOUND, content={"detail": exc.detail}
+        )
+
+    @app.exception_handler(EntityAlreadyExistsException)
+    async def entity_already_exists_handler(
+        request: Request, exc: EntityAlreadyExistsException
+    ) -> JSONResponse:
+        return JSONResponse(
+            status_code=status.HTTP_409_CONFLICT, content={"detail": exc.detail}
         )
 
     app.include_router(api_router)

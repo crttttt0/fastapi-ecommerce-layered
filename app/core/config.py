@@ -11,6 +11,8 @@ class AppSettings(BaseSettings):
 class JWTSettings(BaseSettings):
     ALGORITHM: str
     SECRET_KEY: SecretStr
+    ACCESS_TOKEN_EXPIRE_MINUTES: int = 30
+    REFRESH_TOKEN_EXPIRE_DAYS: int = 7
 
 
 class DatabaseSettings(BaseSettings):
