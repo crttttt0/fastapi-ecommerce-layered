@@ -1,10 +1,10 @@
 from datetime import datetime, timedelta, timezone
 
-from pwdlib import PasswordHash
 import jwt
+from pwdlib import PasswordHash
 
 from .config import settings
-
+from .exceptions import AuthenticationFailedException
 
 password_hash = PasswordHash.recommended()
 
@@ -32,7 +32,7 @@ def verify_password(plain_password: str, hashed_password: str) -> bool:
 
 
 def create_access_token(data: dict) -> str:
-    """Создает access JWT"""
+    """Создает подписанный access-токен с claims iat, exp и type=access."""
 
     payload = data.copy()
     payload.update(
@@ -50,7 +50,7 @@ def create_access_token(data: dict) -> str:
 
 
 def create_refresh_token(data: dict) -> str:
-    """Создает refresh JWT"""
+    """Создает подписанный refresh-токен с claims iat, exp и type=refresh."""
 
     payload = data.copy()
     payload.update(
@@ -68,8 +68,15 @@ def create_refresh_token(data: dict) -> str:
 
 
 def decode_token(token: str) -> dict:
-    """Декодирует JWT"""
+    """Декодирует и проверяет JWT, возвращая claims из payload."""
 
-    return jwt.decode(
-        token, settings.jwt.SECRET_KEY.get_secret_value(), [settings.jwt.ALGORITHM]
-    )
+    try:
+        return jwt.decode(
+            token,
+            settings.jwt.SECRET_KEY.get_secret_value(),
+            [settings.jwt.ALGORITHM],
+        )
+    except jwt.ExpiredSignatureError:
+        raise AuthenticationFailedException("Срок действия токена истек.")
+    except jwt.PyJWTError:
+        raise AuthenticationFailedException("Не удалось проверить учетные данные.")

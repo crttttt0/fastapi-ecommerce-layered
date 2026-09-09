@@ -4,6 +4,8 @@ from fastapi.responses import JSONResponse
 from app.api.v1.router import api_router
 from app.core.config import settings
 from app.core.exceptions import (
+    AccessDeniedException,
+    AuthenticationFailedException,
     BusinessRuleViolationException,
     EntityAlreadyExistsException,
     EntityNotFoundException,
@@ -58,6 +60,24 @@ def create_app() -> FastAPI:
     ) -> JSONResponse:
         return JSONResponse(
             status_code=status.HTTP_409_CONFLICT, content={"detail": exc.detail}
+        )
+
+    @app.exception_handler(AuthenticationFailedException)
+    async def authentication_failed_handler(
+        request: Request, exc: AuthenticationFailedException
+    ) -> JSONResponse:
+        return JSONResponse(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            content={"detail": exc.detail},
+            headers={"WWW-Authenticate": "Bearer"},
+        )
+
+    @app.exception_handler(AccessDeniedException)
+    async def access_denied_handler(
+        request: Request, exc: AccessDeniedException
+    ) -> JSONResponse:
+        return JSONResponse(
+            status_code=status.HTTP_403_FORBIDDEN, content={"detail": exc.detail}
         )
 
     app.include_router(api_router)

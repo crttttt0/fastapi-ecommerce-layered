@@ -2,7 +2,11 @@ from typing import Annotated
 
 from fastapi import APIRouter, Depends, Path, status
 
-from app.core.dependencies import get_category_service
+from app.core.dependencies import (
+    get_category_service,
+    get_current_user_with_roles,
+)
+from app.core.enums import UserRole
 from app.schemas.categories import CategoryInput, CategoryRead
 from app.schemas.pagination import PaginatedResponse, PaginationParameters
 from app.services import CategoryService
@@ -22,7 +26,12 @@ async def get_all_categories(
     return PaginatedResponse(**pagination.model_dump(), total=count, items=items)  # type: ignore
 
 
-@router.post("/", response_model=CategoryRead, status_code=status.HTTP_201_CREATED)
+@router.post(
+    "/",
+    response_model=CategoryRead,
+    status_code=status.HTTP_201_CREATED,
+    dependencies=[Depends(get_current_user_with_roles(UserRole.admin))],
+)
 async def create_category(
     category: CategoryInput,
     category_service: Annotated[CategoryService, Depends(get_category_service)],
@@ -32,7 +41,11 @@ async def create_category(
     return await category_service.create_category(**category.model_dump())  # type: ignore
 
 
-@router.put("/{category_id}", response_model=CategoryRead)
+@router.put(
+    "/{category_id}",
+    response_model=CategoryRead,
+    dependencies=[Depends(get_current_user_with_roles(UserRole.admin))],
+)
 async def update_category(
     category_id: Annotated[int, Path(ge=1, description="ID категории, больше 0")],
     category: CategoryInput,
@@ -47,7 +60,11 @@ async def update_category(
     )  # type: ignore
 
 
-@router.delete("/{category_id}", response_model=CategoryRead)
+@router.delete(
+    "/{category_id}",
+    response_model=CategoryRead,
+    dependencies=[Depends(get_current_user_with_roles(UserRole.admin))],
+)
 async def delete_category(
     category_id: Annotated[int, Path(ge=1, description="ID категории, больше 0")],
     category_service: Annotated[CategoryService, Depends(get_category_service)],

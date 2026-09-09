@@ -2,7 +2,8 @@ from typing import Annotated
 
 from fastapi import APIRouter, Depends, Path, status
 
-from app.core.dependencies import get_product_service
+from app.core.dependencies import get_current_user_with_roles, get_product_service
+from app.core.enums import UserRole
 from app.schemas.pagination import PaginatedResponse, PaginationParameters
 from app.schemas.products import ProductInput, ProductRead
 from app.services import ProductService
@@ -47,7 +48,12 @@ async def get_product(
     return await product_service.get_product_by_id(product_id=product_id)  # type: ignore
 
 
-@router.post("/", response_model=ProductRead, status_code=status.HTTP_201_CREATED)
+@router.post(
+    "/",
+    response_model=ProductRead,
+    status_code=status.HTTP_201_CREATED,
+    dependencies=[Depends(get_current_user_with_roles(UserRole.seller))],
+)
 async def create_product(
     product: ProductInput,
     product_service: Annotated[ProductService, Depends(get_product_service)],
@@ -57,7 +63,11 @@ async def create_product(
     return await product_service.create_product(**product.model_dump())  # type: ignore
 
 
-@router.put("/{product_id}", response_model=ProductRead)
+@router.put(
+    "/{product_id}",
+    response_model=ProductRead,
+    dependencies=[Depends(get_current_user_with_roles(UserRole.seller))],
+)
 async def update_product(
     product_id: Annotated[int, Path(ge=1, description="ID продукта, больше 0")],
     product: ProductInput,
@@ -70,7 +80,11 @@ async def update_product(
     )  # type: ignore
 
 
-@router.delete("/{product_id}", response_model=ProductRead)
+@router.delete(
+    "/{product_id}",
+    response_model=ProductRead,
+    dependencies=[Depends(get_current_user_with_roles(UserRole.seller))],
+)
 async def delete_product(
     product_id: Annotated[int, Path(ge=1, description="ID продукта, больше 0")],
     product_service: Annotated[ProductService, Depends(get_product_service)],
