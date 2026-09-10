@@ -8,6 +8,8 @@ from .base import BaseRepository
 
 
 class ProductRepository(BaseRepository[Product]):
+    """Репозиторий для работы с товарами."""
+
     model = Product
 
     async def get_all_by_category_id(

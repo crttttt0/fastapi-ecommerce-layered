@@ -56,6 +56,8 @@ class UserService:
             )
 
     async def _authenticate(self, email: str, password: str) -> User:
+        """Аутентифицирует пользователя по email и паролю."""
+
         try:
             db_user = await self._get_by_email_or_raise(email=email)
         except EntityNotFoundException:
@@ -67,6 +69,8 @@ class UserService:
         return db_user
 
     def _issue_access_token(self, user: User) -> dict[str, str]:
+        """Выпускает access-токен для пользователя."""
+
         return {
             "access_token": create_access_token(
                 {"sub": user.email, "role": user.role, "id": user.id}
@@ -74,6 +78,8 @@ class UserService:
         }
 
     def _issue_refresh_token(self, user: User) -> dict[str, str]:
+        """Выпускает refresh-токен для пользователя."""
+
         return {
             "refresh_token": create_refresh_token(
                 {"sub": user.email, "role": user.role, "id": user.id}
@@ -81,6 +87,8 @@ class UserService:
         }
 
     def _issue_tokens(self, user: User) -> dict[str, str]:
+        """Выпускает пару access и refresh токенов."""
+
         return {
             **self._issue_access_token(user=user),
             **self._issue_refresh_token(user=user),

@@ -18,3 +18,8 @@ wheels/
 # Docker
 **/Dockerfile*
 .dockerignore
+
+# Secrets & VCS
+.env
+.git
+.ruff_cache

@@ -6,6 +6,8 @@ from .base import BaseRepository
 
 
 class UserRepository(BaseRepository[User]):
+    """Репозиторий для работы с пользователями."""
+
     model = User
 
     async def get_user_by_email(self, email: str) -> User | None:

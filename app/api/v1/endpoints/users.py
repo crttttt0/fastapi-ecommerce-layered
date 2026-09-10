@@ -21,7 +21,7 @@ async def create_user(
     user: UserInput,
     user_service: Annotated[UserService, Depends(get_user_service)],
 ) -> UserRead:
-    """Регистрирует нового пользователя с ролью 'buyer' или 'seller'."""
+    """Регистрирует нового пользователя с ролью 'buyer' или 'seller'. Доступно всем."""
 
     return await user_service.create_user(**user.model_dump())  # type: ignore
 
@@ -31,7 +31,7 @@ async def login(
     form_data: Annotated[OAuth2PasswordRequestForm, Depends()],
     user_service: Annotated[UserService, Depends(get_user_service)],
 ) -> TokensResponse:
-    """Возвращает пару access и refresh токенов после успешного логина."""
+    """Возвращает пару access и refresh токенов после успешного логина. Доступно всем."""
 
     return await user_service.login(form_data.username, form_data.password)  # type: ignore
 
@@ -41,7 +41,7 @@ async def refresh(
     data: RefreshTokenRequest,
     user_service: Annotated[UserService, Depends(get_user_service)],
 ) -> RefreshTokenResponse:
-    """Выпускает новый refresh-токен по переданному."""
+    """Выпускает новый refresh-токен по переданному. Доступно всем (по refresh-токену)."""
 
     return await user_service.refresh_token(data.refresh_token)  # type: ignore
 
@@ -51,6 +51,6 @@ async def access(
     data: RefreshTokenRequest,
     user_service: Annotated[UserService, Depends(get_user_service)],
 ) -> AccessTokenResponse:
-    """Выпускает новый access-токен по refresh-токену."""
+    """Выпускает новый access-токен по refresh-токену. Доступно всем (по refresh-токену)."""
 
     return await user_service.access_token(data.refresh_token)  # type: ignore

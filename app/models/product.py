@@ -10,6 +10,7 @@ from app.database import Base
 
 if TYPE_CHECKING:
     from .category import Category
+    from .review import Review
     from .user import User
 
 
@@ -24,6 +25,9 @@ class Product(Base):
     price: Mapped[Decimal] = mapped_column(Numeric(10, 2))
     image_url: Mapped[str | None] = mapped_column(String(200))
     stock: Mapped[int] = mapped_column()
+    rating: Mapped[Decimal] = mapped_column(
+        Numeric(3, 2), default=Decimal("0.00"), server_default="0"
+    )
     is_active: Mapped[bool] = mapped_column(default=True)
 
     category_id: Mapped[int] = mapped_column(ForeignKey("categories.id"))
@@ -31,3 +35,4 @@ class Product(Base):
 
     category: Mapped[Category] = relationship(back_populates="products", lazy="raise")
     seller: Mapped[User] = relationship(back_populates="products", lazy="raise")
+    reviews: Mapped[list[Review]] = relationship(back_populates="product", lazy="raise")

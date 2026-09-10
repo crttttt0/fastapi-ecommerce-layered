@@ -34,6 +34,8 @@ def create_app() -> FastAPI:
     async def invalid_foreign_key_handler(
         request: Request, exc: InvalidForeignKeyException
     ) -> JSONResponse:
+        """Обрабатывает InvalidForeignKeyException (400)."""
+
         return JSONResponse(
             status_code=status.HTTP_400_BAD_REQUEST, content={"detail": exc.detail}
         )
@@ -42,6 +44,8 @@ def create_app() -> FastAPI:
     async def business_rule_violation_handler(
         request: Request, exc: BusinessRuleViolationException
     ) -> JSONResponse:
+        """Обрабатывает BusinessRuleViolationException (400)."""
+
         return JSONResponse(
             status_code=status.HTTP_400_BAD_REQUEST, content={"detail": exc.detail}
         )
@@ -50,6 +54,8 @@ def create_app() -> FastAPI:
     async def entity_not_found_handler(
         request: Request, exc: EntityNotFoundException
     ) -> JSONResponse:
+        """Обрабатывает EntityNotFoundException (404)."""
+
         return JSONResponse(
             status_code=status.HTTP_404_NOT_FOUND, content={"detail": exc.detail}
         )
@@ -58,6 +64,8 @@ def create_app() -> FastAPI:
     async def entity_already_exists_handler(
         request: Request, exc: EntityAlreadyExistsException
     ) -> JSONResponse:
+        """Обрабатывает EntityAlreadyExistsException (409)."""
+
         return JSONResponse(
             status_code=status.HTTP_409_CONFLICT, content={"detail": exc.detail}
         )
@@ -66,6 +74,8 @@ def create_app() -> FastAPI:
     async def authentication_failed_handler(
         request: Request, exc: AuthenticationFailedException
     ) -> JSONResponse:
+        """Обрабатывает AuthenticationFailedException (401)."""
+
         return JSONResponse(
             status_code=status.HTTP_401_UNAUTHORIZED,
             content={"detail": exc.detail},
@@ -76,6 +86,8 @@ def create_app() -> FastAPI:
     async def access_denied_handler(
         request: Request, exc: AccessDeniedException
     ) -> JSONResponse:
+        """Обрабатывает AccessDeniedException (403)."""
+
         return JSONResponse(
             status_code=status.HTTP_403_FORBIDDEN, content={"detail": exc.detail}
         )
@@ -84,6 +96,8 @@ def create_app() -> FastAPI:
 
     @app.get("/health", tags=["health"], summary="Проверить работоспособность")
     def check_health() -> dict:
+        """Проверяет работоспособность сервера."""
+
         return {"status": "Ок"}
 
     return app

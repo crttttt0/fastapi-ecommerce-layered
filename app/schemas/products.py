@@ -58,6 +58,7 @@ class ProductRead(BaseModel):
         str | None, Field(default=None, description="URL изображения товара")
     ]
     stock: Annotated[int, Field(description="Количество товара на складе")]
+    rating: Annotated[Decimal, Field(ge=0, description="Средний рейтинг товара (0-5)")]
     is_active: Annotated[bool, Field(description="Активность товара")]
 
     category_id: Annotated[int, Field(description="ID категории")]

@@ -19,7 +19,7 @@ async def get_all_categories(
     pagination: Annotated[PaginationParameters, Depends()],
     category_service: Annotated[CategoryService, Depends(get_category_service)],
 ) -> PaginatedResponse[CategoryRead]:
-    """Возвращает список всех категорий товаров."""
+    """Возвращает список всех категорий товаров. Доступно всем, в т.ч. без аутентификации."""
 
     items, count = await category_service.get_all_categories(**pagination.model_dump())
 
@@ -36,7 +36,7 @@ async def create_category(
     category: CategoryInput,
     category_service: Annotated[CategoryService, Depends(get_category_service)],
 ) -> CategoryRead:
-    """Создает новую категорию."""
+    """Создает новую категорию. Доступно только 'admin'."""
 
     return await category_service.create_category(**category.model_dump())  # type: ignore
 
@@ -53,6 +53,7 @@ async def update_category(
 ) -> CategoryRead:
     """
     Обновляет категорию по ее ID.
+    Доступно только 'admin'.
     """
 
     return await category_service.update_category(
@@ -69,6 +70,6 @@ async def delete_category(
     category_id: Annotated[int, Path(ge=1, description="ID категории, больше 0")],
     category_service: Annotated[CategoryService, Depends(get_category_service)],
 ) -> CategoryRead:
-    """Удаляет категорию по ее ID."""
+    """Удаляет категорию по ее ID. Доступно только 'admin'."""
 
     return await category_service.deactivate_category(category_id=category_id)  # type: ignore

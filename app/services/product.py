@@ -3,6 +3,7 @@ from __future__ import annotations
 from typing import TYPE_CHECKING, Sequence
 
 from app.core.exceptions import (
+    AccessDeniedException,
     EntityNotFoundException,
     InvalidForeignKeyException,
 )
@@ -10,7 +11,7 @@ from app.core.exceptions import (
 if TYPE_CHECKING:
     from decimal import Decimal
 
-    from app.models import Product
+    from app.models import Product, User
     from app.repositories import ProductRepository
 
     from .category import CategoryService
@@ -71,7 +72,7 @@ class ProductService:
     ) -> tuple[Sequence[Product], int]:
         """Возвращает страницу активных товаров указанной категории с пагинацией и подсчетом записей."""
 
-        await self._check_category_exists(category_id=category_id)
+        await self.category_service.get_category_by_id(category_id=category_id)
         items = await self.product_repository.get_all_by_category_id(
             category_id, page, limit
         )
@@ -92,6 +93,7 @@ class ProductService:
 
     async def create_product(
         self,
+        current_user: User,
         name: str,
         price: Decimal,
         stock: int,
@@ -108,12 +110,14 @@ class ProductService:
             price=price,
             stock=stock,
             category_id=category_id,
+            seller_id=current_user.id,
             description=description,
             image_url=image_url,
         )
 
     async def update_product(
         self,
+        current_user: User,
         product_id: int,
         name: str,
         price: Decimal,
@@ -125,6 +129,9 @@ class ProductService:
         """Обновляет существующий товар, проверяя существование указанной категории."""
 
         db_product = await self._get_product_by_id_or_raise(product_id=product_id)
+
+        if db_product.seller_id != current_user.id:
+            raise AccessDeniedException("Можно редактировать только свои продукты")
 
         await self._check_category_exists(category_id=category_id)
 
@@ -138,8 +145,18 @@ class ProductService:
             image_url=image_url,
         )
 
-    async def deactivate_product(self, product_id: int) -> Product:
+    async def update_product_rating(self, product_id: int, rating: Decimal) -> None:
+        """Обновляет рейтинг товара по его ID."""
+
+        db_product = await self._get_product_by_id_or_raise(product_id=product_id)
+        return await self.product_repository.update(db_product, rating=rating)
+
+    async def deactivate_product(self, current_user: User, product_id: int) -> Product:
         """Деактивирует товар по его ID (soft delete)."""
 
         db_product = await self._get_product_by_id_or_raise(product_id=product_id)
+
+        if db_product.seller_id != current_user.id:
+            raise AccessDeniedException("Можно удалять только свои продукты")
+
         return await self.product_repository.deactivate(db_product)

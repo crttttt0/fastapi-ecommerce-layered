@@ -3,12 +3,16 @@ from pydantic_settings import BaseSettings, SettingsConfigDict
 
 
 class AppSettings(BaseSettings):
+    """Настройки приложения."""
+
     NAME: str = "FastAPI Ecommerce"
     DEBUG: bool
     VERSION: str = "1.0.0"
 
 
 class JWTSettings(BaseSettings):
+    """Настройки JWT."""
+
     ALGORITHM: str
     SECRET_KEY: SecretStr
     ACCESS_TOKEN_EXPIRE_MINUTES: int = 30
@@ -16,6 +20,8 @@ class JWTSettings(BaseSettings):
 
 
 class DatabaseSettings(BaseSettings):
+    """Настройки подключения к БД."""
+
     URL: SecretStr
     ECHO: bool
     POOL_SIZE: int
@@ -24,6 +30,8 @@ class DatabaseSettings(BaseSettings):
 
 
 class Settings(BaseSettings):
+    """Корневые настройки приложения."""
+
     app: AppSettings
     jwt: JWTSettings
     database: DatabaseSettings

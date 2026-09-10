@@ -10,6 +10,7 @@ from app.database import Base
 
 if TYPE_CHECKING:
     from .product import Product
+    from .review import Review
 
 
 class User(Base):
@@ -26,3 +27,4 @@ class User(Base):
     products: Mapped[list[Product]] = relationship(
         back_populates="seller", lazy="raise"
     )
+    reviews: Mapped[list[Review]] = relationship(back_populates="user", lazy="raise")

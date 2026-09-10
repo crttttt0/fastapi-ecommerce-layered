@@ -16,9 +16,10 @@ from app.models import User
 from app.repositories import (
     CategoryRepository,
     ProductRepository,
+    ReviewRepository,
     UserRepository,
 )
-from app.services import CategoryService, ProductService, UserService
+from app.services import CategoryService, ProductService, ReviewService, UserService
 
 oauth2_scheme = OAuth2PasswordBearer(tokenUrl="/api/v1/auth/login", auto_error=False)
 
@@ -47,6 +48,14 @@ async def get_user_repository(
     """Возвращает репозиторий для работы с пользователями."""
 
     return UserRepository(session=session)
+
+
+async def get_review_repository(
+    session: Annotated[AsyncSession, Depends(get_session)],
+) -> ReviewRepository:
+    """Возвращает репозиторий для работы с отзывами."""
+
+    return ReviewRepository(session=session)
 
 
 # Сервисы
@@ -79,6 +88,17 @@ async def get_user_service(
     """Возвращает сервис для работы с пользователями."""
 
     return UserService(user_repository=user_repository)
+
+
+async def get_review_service(
+    review_repository: Annotated[ReviewRepository, Depends(get_review_repository)],
+    product_service: Annotated[ProductService, Depends(get_product_service)],
+) -> ReviewService:
+    """Возвращает сервис для работы с отзывами."""
+
+    return ReviewService(
+        review_repository=review_repository, product_service=product_service
+    )
 
 
 # JWT
