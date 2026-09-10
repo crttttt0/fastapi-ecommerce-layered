@@ -57,7 +57,7 @@ async def create_product(
     product: ProductInput,
     product_service: Annotated[ProductService, Depends(get_product_service)],
 ) -> ProductRead:
-    """Создает новый товар, привязанный к текущему продавцу. Доступно только 'seller'."""
+    """Создает новый товар, привязанный к текущему продавцу. Доступно только `seller`."""
 
     return await product_service.create_product(
         current_user=current_user, **product.model_dump()
@@ -67,13 +67,13 @@ async def create_product(
 @router.put("/{product_id}", response_model=ProductRead)
 async def update_product(
     current_user: Annotated[
-        User, Depends(get_current_user_with_roles(UserRole.seller))
+        User, Depends(get_current_user_with_roles(UserRole.seller, UserRole.admin))
     ],
     product_id: Annotated[int, Path(ge=1, description="ID продукта, больше 0")],
     product: ProductInput,
     product_service: Annotated[ProductService, Depends(get_product_service)],
 ) -> ProductRead:
-    """Обновляет товар по его ID, если он принадлежит текущему продавцу. Доступно только 'seller' (владельцу товара)."""
+    """Обновляет товар по его ID. Доступно `seller` (владельцу товара) или `admin`."""
 
     return await product_service.update_product(
         current_user=current_user, product_id=product_id, **product.model_dump()
@@ -83,12 +83,12 @@ async def update_product(
 @router.delete("/{product_id}", response_model=ProductRead)
 async def delete_product(
     current_user: Annotated[
-        User, Depends(get_current_user_with_roles(UserRole.seller))
+        User, Depends(get_current_user_with_roles(UserRole.seller, UserRole.admin))
     ],
     product_id: Annotated[int, Path(ge=1, description="ID продукта, больше 0")],
     product_service: Annotated[ProductService, Depends(get_product_service)],
 ) -> ProductRead:
-    """Удаляет товар по его ID (soft delete), если он принадлежит текущему продавцу. Доступно только 'seller' (владельцу товара)."""
+    """Удаляет товар по его ID (soft delete). Доступно `seller` (владельцу товара) или `admin`."""
 
     return await product_service.deactivate_product(
         current_user=current_user, product_id=product_id

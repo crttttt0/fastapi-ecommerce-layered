@@ -21,7 +21,7 @@ from app.repositories import (
 )
 from app.services import CategoryService, ProductService, ReviewService, UserService
 
-oauth2_scheme = OAuth2PasswordBearer(tokenUrl="/api/v1/auth/login", auto_error=False)
+oauth2_scheme = OAuth2PasswordBearer(tokenUrl="/api/v1/users/login", auto_error=False)
 
 # Репозитории
 

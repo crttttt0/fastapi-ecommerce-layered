@@ -51,7 +51,7 @@ async def create_review(
     review: ReviewInput,
     review_service: Annotated[ReviewService, Depends(get_review_service)],
 ) -> ReviewRead:
-    """Создает новый отзыв о товаре и пересчитывает рейтинг. Доступно только 'buyer'."""
+    """Создает новый отзыв о товаре и пересчитывает рейтинг. Доступно только `buyer`."""
 
     return await review_service.create_review(
         current_user=current_user, **review.model_dump()
@@ -66,7 +66,7 @@ async def delete_review(
     review_id: Annotated[int, Path(ge=1, description="ID отзыва, больше 0")],
     review_service: Annotated[ReviewService, Depends(get_review_service)],
 ) -> ReviewRead:
-    """Выполняет мягкое удаление отзыва. Доступно автору отзыва или 'admin'."""
+    """Выполняет мягкое удаление отзыва. Доступно автору отзыва или `admin`."""
 
     return await review_service.deactivate_review(
         current_user=current_user, review_id=review_id

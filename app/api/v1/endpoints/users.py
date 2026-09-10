@@ -17,13 +17,13 @@ router = APIRouter(prefix="/users", tags=["users"])
 
 
 @router.post("/", response_model=UserRead, status_code=status.HTTP_201_CREATED)
-async def create_user(
+async def register_user(
     user: UserInput,
     user_service: Annotated[UserService, Depends(get_user_service)],
 ) -> UserRead:
-    """Регистрирует нового пользователя с ролью 'buyer' или 'seller'. Доступно всем."""
+    """Регистрирует нового пользователя с ролью `buyer` или `seller`. Доступно всем."""
 
-    return await user_service.create_user(**user.model_dump())  # type: ignore
+    return await user_service.register_user(**user.model_dump())  # type: ignore
 
 
 @router.post("/login", response_model=TokensResponse)

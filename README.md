@@ -121,8 +121,8 @@ just migrations-current    # текущая ревизия БД
 | GET    | `/products/category/{category_id}` | всем                       |
 | GET    | `/products/{product_id}`           | всем                       |
 | POST   | `/products/`                       | `seller`                   |
-| PUT    | `/products/{product_id}`           | `seller` (владелец товара) |
-| DELETE | `/products/{product_id}`           | `seller` (владелец товара) |
+| PUT    | `/products/{product_id}`           | `seller` (владелец) или `admin` |
+| DELETE | `/products/{product_id}`           | `seller` (владелец) или `admin` |
 | GET    | `/reviews/`                        | всем                       |
 | GET    | `/products/{product_id}/reviews/`  | всем                       |
 | POST   | `/reviews/`                        | `buyer`                    |

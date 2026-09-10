@@ -2,6 +2,7 @@ from __future__ import annotations
 
 from typing import TYPE_CHECKING, Sequence
 
+from app.core.enums import UserRole
 from app.core.exceptions import (
     AccessDeniedException,
     EntityNotFoundException,
@@ -130,7 +131,10 @@ class ProductService:
 
         db_product = await self._get_product_by_id_or_raise(product_id=product_id)
 
-        if db_product.seller_id != current_user.id:
+        if (
+            current_user.role != UserRole.admin
+            and db_product.seller_id != current_user.id
+        ):
             raise AccessDeniedException("Можно редактировать только свои продукты")
 
         await self._check_category_exists(category_id=category_id)
@@ -156,7 +160,10 @@ class ProductService:
 
         db_product = await self._get_product_by_id_or_raise(product_id=product_id)
 
-        if db_product.seller_id != current_user.id:
+        if (
+            current_user.role != UserRole.admin
+            and db_product.seller_id != current_user.id
+        ):
             raise AccessDeniedException("Можно удалять только свои продукты")
 
         return await self.product_repository.deactivate(db_product)
